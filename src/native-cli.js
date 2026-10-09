@@ -6,11 +6,15 @@ const { stripVTControlCharacters } = require("node:util");
 const { CliError, cliEnvironment } = require("./cli");
 
 function shellCommand(executable, args, platform = process.platform) {
-  const quote =
-    platform === "win32"
-      ? (value) => `'${value.replaceAll("'", "''")}'`
-      : (value) => `'${value.replaceAll("'", "'\\''")}'`;
-  return `${platform === "win32" ? '$env:ELECTRON_RUN_AS_NODE="1"; & ' : "ELECTRON_RUN_AS_NODE=1 "}${[executable, ...args].map(quote).join(" ")}`;
+  if (platform === "win32") {
+    const quote = (value) => `'${value.replaceAll("'", "''")}'`;
+    const argument = (value) =>
+      `"${value.replace(/(\\*)"/g, '$1$1\\"').replace(/(\\+)$/g, "$1$1")}"`;
+    const argumentsLine = args.map(argument).join(" ");
+    return `$env:ELECTRON_RUN_AS_NODE="1"; $sfSourceProcess = Start-Process -FilePath ${quote(executable)} -ArgumentList ${quote(argumentsLine)} -NoNewWindow -PassThru -Wait; $global:LASTEXITCODE = $sfSourceProcess.ExitCode`;
+  }
+  const quote = (value) => `'${value.replaceAll("'", "'\\''")}'`;
+  return `ELECTRON_RUN_AS_NODE=1 ${[executable, ...args].map(quote).join(" ")}`;
 }
 
 function captureOutput(capture, chunk) {

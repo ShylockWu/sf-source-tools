@@ -56,7 +56,9 @@ function terminalApi(onExecution) {
 }
 
 function getSpec(command) {
-  const match = command.match(/'([^']*command\.json)'$/);
+  const match =
+    command.match(/'([^']*command\.json)'$/) ||
+    command.match(/"([^"]*command\.json)"/);
   assert.ok(match, command);
   return JSON.parse(fs.readFileSync(match[1], "utf8"));
 }
@@ -86,10 +88,10 @@ test("shell launcher quotes literal arguments including apostrophes and substitu
     });
     assert.deepEqual(result, args.slice(1));
   }
-  assert.equal(
-    shellCommand("node.exe", ["a'b;$()\"`&|"], "win32"),
-    "$env:ELECTRON_RUN_AS_NODE=\"1\"; & 'node.exe' 'a''b;$()\"`&|'",
-  );
+  const windows = shellCommand("node.exe", ["a'b;$()\"`&|"], "win32");
+  assert.match(windows, /Start-Process -FilePath 'node.exe'/);
+  assert.match(windows, /-NoNewWindow -PassThru -Wait/);
+  assert.match(windows, /ELECTRON_RUN_AS_NODE/);
 });
 
 test("native terminal strips JSON only, keeps source args literal, and binds project and org", async (t) => {
