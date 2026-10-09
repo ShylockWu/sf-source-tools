@@ -88,7 +88,7 @@ test("shell launcher quotes literal arguments including apostrophes and substitu
   }
   assert.equal(
     shellCommand("node.exe", ["a'b;$()\"`&|"], "win32"),
-    "& 'node.exe' 'a''b;$()\"`&|'",
+    "$env:ELECTRON_RUN_AS_NODE=\"1\"; & 'node.exe' 'a''b;$()\"`&|'",
   );
 });
 
@@ -196,6 +196,7 @@ test("missing or mismatched result cannot produce success", async (t) => {
       createTerminalCli(h.api, "deploy", {
         platform: "darwin",
         temporaryRoot: root,
+        confirmationTimeout: 10,
       })("sf", [], { root: a.root, org: "org" }),
       /No success is assumed/,
     );
@@ -316,4 +317,28 @@ test("Windows terminal uses supported PowerShell 7 shell integration", async (t)
   });
   assert.equal(h.terminals[0].options.shellPath, "pwsh.exe");
   assert.deepEqual(h.terminals[0].options.shellArgs, []);
+});
+
+test("early shell completion waits for nonce-confirmed runner result without resubmission", async (t) => {
+  const root = temporary(t);
+  const a = fixture(root);
+  let calls = 0;
+  const h = terminalApi(async (command) => {
+    calls++;
+    const spec = getSpec(command);
+    setTimeout(
+      () =>
+        fs.writeFileSync(
+          spec.resultPath,
+          JSON.stringify({ nonce: spec.nonce, exitCode: 0 }),
+        ),
+      100,
+    );
+  });
+  const result = await createTerminalCli(h.api, "deploy", {
+    platform: "darwin",
+    temporaryRoot: root,
+  })("sf", [], { root: a.root, org: "org" });
+  assert.equal(result.success, true);
+  assert.equal(calls, 1);
 });

@@ -10,7 +10,7 @@ function shellCommand(executable, args, platform = process.platform) {
     platform === "win32"
       ? (value) => `'${value.replaceAll("'", "''")}'`
       : (value) => `'${value.replaceAll("'", "'\\''")}'`;
-  return `${platform === "win32" ? "& " : ""}${[executable, ...args].map(quote).join(" ")}`;
+  return `${platform === "win32" ? '$env:ELECTRON_RUN_AS_NODE="1"; & ' : "ELECTRON_RUN_AS_NODE=1 "}${[executable, ...args].map(quote).join(" ")}`;
 }
 
 function captureOutput(capture, chunk) {
@@ -171,12 +171,19 @@ function createTerminalCli(api, operation, options = {}) {
       );
       await executeInTerminal(api, terminal, integration, command, capture);
       let result;
-      try {
-        result = JSON.parse(await fs.readFile(resultPath, "utf8"));
-      } catch {
-        throw new Error(
-          "The terminal command did not return a confirmed CLI result. No success is assumed. See the SF Source Tools terminal.",
-        );
+      const deadline = Date.now() + (options.confirmationTimeout ?? 5000);
+      while (!result) {
+        try {
+          result = JSON.parse(await fs.readFile(resultPath, "utf8"));
+        } catch (error) {
+          if (error.code !== "ENOENT" || Date.now() >= deadline) {
+            log(stripVTControlCharacters(capture.raw));
+            throw new Error(
+              "The terminal command did not return a confirmed CLI result. No success is assumed. See the SF Source Tools terminal.",
+            );
+          }
+          await new Promise((resolve) => setTimeout(resolve, 50));
+        }
       }
       if (result.nonce !== nonce)
         throw new Error(
