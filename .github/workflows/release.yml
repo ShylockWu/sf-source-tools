@@ -1,0 +1,94 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to revalidate and publish
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run release:check
+      - run: npm run check
+      - run: npm audit --omit=dev --audit-level=high
+      - run: xvfb-run -a npm run test:vscode
+      - run: npm run package
+      - name: Test packaged VSIX
+        run: |
+          mkdir -p "$RUNNER_TEMP/sf-source-vsix"
+          unzip -q sf-source-tools-*.vsix -d "$RUNNER_TEMP/sf-source-vsix"
+          SF_SOURCE_TEST_EXTENSION="$RUNNER_TEMP/sf-source-vsix/extension" xvfb-run -a npm run test:vscode
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node scripts/release-check.js --notes > "$RUNNER_TEMP/release-notes.md"
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" sf-source-tools-*.vsix --clobber
+          else
+            gh release create "$RELEASE_TAG" sf-source-tools-*.vsix --verify-tag --title "$RELEASE_TAG" --notes-file "$RUNNER_TEMP/release-notes.md"
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-vsix
+          path: sf-source-tools-*.vsix
+          if-no-files-found: error
+
+  marketplace:
+    needs: release
+    runs-on: ubuntu-latest
+    environment: marketplace
+    env:
+      VSCE_PAT: ${{ secrets.VSCE_PAT }}
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - name: Missing Marketplace authorization
+        if: env.VSCE_PAT == ''
+        run: echo 'GitHub Release published. Marketplace publication skipped because VSCE_PAT is not configured.' >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/checkout@v4
+        if: env.VSCE_PAT != ''
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+      - uses: actions/setup-node@v4
+        if: env.VSCE_PAT != ''
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+        if: env.VSCE_PAT != ''
+      - uses: actions/download-artifact@v4
+        if: env.VSCE_PAT != ''
+        with:
+          name: release-vsix
+      - name: Publish validated VSIX to Marketplace
+        if: env.VSCE_PAT != ''
+        run: |
+          npm exec -- vsce verify-pat shylockwu
+          npm exec -- vsce publish --packagePath "sf-source-tools-${RELEASE_TAG#v}.vsix"
+          echo 'Marketplace publication succeeded.' >> "$GITHUB_STEP_SUMMARY"

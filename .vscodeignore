@@ -1,0 +1,14 @@
+.git/**
+.github/**
+.vscode/**
+.vscode-test/**
+test/**
+scripts/**
+docs/**
+CONTEXT.md
+AGENTS.md
+.gitignore
+.prettierignore
+.prettierrc.json
+package-lock.json
+*.vsix

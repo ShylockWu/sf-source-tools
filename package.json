@@ -1,0 +1,154 @@
+{
+  "name": "sf-source-tools",
+  "displayName": "SF Source Tools",
+  "description": "Retrieve, deploy, and delete Salesforce source from the correct project in single-root and multi-root workspaces.",
+  "version": "0.1.0",
+  "publisher": "shylockwu",
+  "author": "Shylock Wu",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ShylockWu/sf-source-tools.git"
+  },
+  "homepage": "https://github.com/ShylockWu/sf-source-tools#readme",
+  "bugs": {
+    "url": "https://github.com/ShylockWu/sf-source-tools/issues"
+  },
+  "engines": {
+    "vscode": "^1.110.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "salesforce",
+    "sf",
+    "sfdx",
+    "multi-root",
+    "deploy",
+    "retrieve"
+  ],
+  "main": "./src/extension.js",
+  "extensionKind": [
+    "workspace"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false
+    },
+    "virtualWorkspaces": false
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "sfSourceTools.retrieve",
+        "title": "Retrieve This Source from Org",
+        "category": "SF Source Tools"
+      },
+      {
+        "command": "sfSourceTools.deploy",
+        "title": "Deploy This Source to Org",
+        "category": "SF Source Tools"
+      },
+      {
+        "command": "sfSourceTools.deleteOrg",
+        "title": "Delete This Source from Org",
+        "category": "SF Source Tools"
+      },
+      {
+        "command": "sfSourceTools.deleteBoth",
+        "title": "Delete This Source from Project and Org",
+        "category": "SF Source Tools"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "sfSourceTools.retrieve",
+          "when": "resourceScheme == file && isWorkspaceTrusted",
+          "group": "sf_source_tools@1"
+        },
+        {
+          "command": "sfSourceTools.deploy",
+          "when": "resourceScheme == file && isWorkspaceTrusted",
+          "group": "sf_source_tools@2"
+        },
+        {
+          "command": "sfSourceTools.deleteOrg",
+          "when": "resourceScheme == file && isWorkspaceTrusted",
+          "group": "sf_source_tools@3"
+        },
+        {
+          "command": "sfSourceTools.deleteBoth",
+          "when": "resourceScheme == file && isWorkspaceTrusted",
+          "group": "sf_source_tools@4"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "sfSourceTools.retrieve",
+          "when": "resourceScheme == file && isWorkspaceTrusted",
+          "group": "sf_source_tools@1"
+        },
+        {
+          "command": "sfSourceTools.deploy",
+          "when": "resourceScheme == file && isWorkspaceTrusted",
+          "group": "sf_source_tools@2"
+        },
+        {
+          "command": "sfSourceTools.deleteOrg",
+          "when": "resourceScheme == file && isWorkspaceTrusted",
+          "group": "sf_source_tools@3"
+        },
+        {
+          "command": "sfSourceTools.deleteBoth",
+          "when": "resourceScheme == file && isWorkspaceTrusted",
+          "group": "sf_source_tools@4"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "SF Source Tools",
+      "properties": {
+        "sfSourceTools.sfPath": {
+          "type": "string",
+          "default": "sf",
+          "scope": "machine",
+          "description": "Salesforce CLI executable name or absolute path on the extension host."
+        },
+        "sfSourceTools.waitMinutes": {
+          "type": "integer",
+          "default": 33,
+          "minimum": 1,
+          "maximum": 120,
+          "scope": "resource",
+          "description": "Minutes to wait before automatically following an unfinished Salesforce job."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "check": "prettier --check . && node --test test/*.test.js",
+    "test": "node --test test/*.test.js",
+    "test:vscode": "node scripts/test-vscode.js",
+    "format": "prettier --write .",
+    "package": "vsce package",
+    "release:check": "node scripts/release-check.js",
+    "release:notes": "node scripts/release-check.js --notes",
+    "prepare": "node scripts/install-hook.js"
+  },
+  "dependencies": {
+    "@salesforce/source-deploy-retrieve": "13.4.5",
+    "cross-spawn": "7.0.6"
+  },
+  "overrides": {
+    "get-uri": {
+      "basic-ftp": "6.2.2"
+    }
+  },
+  "devDependencies": {
+    "@vscode/test-electron": "3.1.0",
+    "@vscode/vsce": "4.0.0",
+    "prettier": "3.8.3"
+  }
+}
