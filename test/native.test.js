@@ -296,3 +296,23 @@ test("Deploy is first in both context menus and command contributions", () => {
     assert.equal(pkg.contributes.menus[menu][0].group, "sf_source_tools@1");
   }
 });
+
+test("Windows terminal uses supported PowerShell 7 shell integration", async (t) => {
+  const root = temporary(t);
+  const a = fixture(root);
+  const h = terminalApi(async (command) => {
+    const spec = getSpec(command);
+    fs.writeFileSync(
+      spec.resultPath,
+      JSON.stringify({ nonce: spec.nonce, exitCode: 0 }),
+    );
+  });
+  await createTerminalCli(h.api, "deploy", {
+    platform: "win32",
+    temporaryRoot: root,
+  })("sf", ["project", "deploy", "start", "--json"], {
+    root: a.root,
+    org: "org",
+  });
+  assert.equal(h.terminals[0].options.shellPath, "pwsh.exe");
+});

@@ -8,7 +8,7 @@ A small VS Code extension for Salesforce source operations that works in **singl
 - Current Salesforce CLI (`sf`) installed on the extension host and available on PATH.
 - An authenticated org and a **project-local** default org for every Salesforce project you use.
 - A trusted workspace and source-format metadata inside a `packageDirectories` path in `sfdx-project.json`.
-- Enabled VS Code terminal shell integration. The extension uses Bash on macOS/Linux and PowerShell on Windows for its dedicated CLI terminal.
+- Enabled VS Code terminal shell integration. The extension uses Bash on macOS/Linux and PowerShell 7 (`pwsh.exe`, installed on PATH) on Windows for its dedicated CLI terminal.
 
 From each Salesforce project's directory, configure its default org:
 

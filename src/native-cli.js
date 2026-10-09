@@ -153,7 +153,7 @@ function createTerminalCli(api, operation, options = {}) {
             SF_USE_PROGRESS_BAR: "true",
             ELECTRON_RUN_AS_NODE: "1",
           },
-          shellPath: platform === "win32" ? "powershell.exe" : "/bin/bash",
+          shellPath: platform === "win32" ? "pwsh.exe" : "/bin/bash",
           shellArgs: platform === "win32" ? ["-NoLogo", "-NoProfile"] : [],
         });
       }
