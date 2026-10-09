@@ -2,7 +2,7 @@
   "name": "sf-source-tools",
   "displayName": "SF Source Tools",
   "description": "Retrieve, deploy, and delete Salesforce source from the correct project in single-root and multi-root workspaces.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "shylockwu",
   "author": "Shylock Wu",
   "license": "MIT",
@@ -41,13 +41,13 @@
   "contributes": {
     "commands": [
       {
-        "command": "sfSourceTools.retrieve",
-        "title": "Retrieve This Source from Org",
+        "command": "sfSourceTools.deploy",
+        "title": "Deploy This Source to Org",
         "category": "SF Source Tools"
       },
       {
-        "command": "sfSourceTools.deploy",
-        "title": "Deploy This Source to Org",
+        "command": "sfSourceTools.retrieve",
+        "title": "Retrieve This Source from Org",
         "category": "SF Source Tools"
       },
       {
@@ -64,12 +64,12 @@
     "menus": {
       "explorer/context": [
         {
-          "command": "sfSourceTools.retrieve",
+          "command": "sfSourceTools.deploy",
           "when": "resourceScheme == file && isWorkspaceTrusted",
           "group": "sf_source_tools@1"
         },
         {
-          "command": "sfSourceTools.deploy",
+          "command": "sfSourceTools.retrieve",
           "when": "resourceScheme == file && isWorkspaceTrusted",
           "group": "sf_source_tools@2"
         },
@@ -86,12 +86,12 @@
       ],
       "editor/context": [
         {
-          "command": "sfSourceTools.retrieve",
+          "command": "sfSourceTools.deploy",
           "when": "resourceScheme == file && isWorkspaceTrusted",
           "group": "sf_source_tools@1"
         },
         {
-          "command": "sfSourceTools.deploy",
+          "command": "sfSourceTools.retrieve",
           "when": "resourceScheme == file && isWorkspaceTrusted",
           "group": "sf_source_tools@2"
         },

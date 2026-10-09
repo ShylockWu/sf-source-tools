@@ -1,6 +1,6 @@
 const path = require("node:path");
 const { resolveSelection, isWithin } = require("./project");
-const { runCli } = require("./cli");
+const { createTerminalCli } = require("./native-cli");
 const { executeOperation } = require("./operations");
 
 function selectedUris(uri, selections, activeUri) {
@@ -18,7 +18,6 @@ function selectedUris(uri, selections, activeUri) {
 
 function createController(api, output, dependencies = {}) {
   const resolve = dependencies.resolve || resolveSelection;
-  const cli = dependencies.cli || runCli;
   const busy = new Set();
   return async function run(operation, uri, selections) {
     let root;
@@ -77,7 +76,7 @@ function createController(api, output, dependencies = {}) {
       const config = api.workspace.getConfiguration("sfSourceTools", uris[0]);
       const executable = config.get("sfPath", "sf");
       const wait = config.get("waitMinutes", 33);
-      output.show(true);
+      const cli = dependencies.cli || createTerminalCli(api, operation);
       const log = (line) => output.appendLine(line);
       const result = await api.window.withProgress(
         {
@@ -105,7 +104,6 @@ function createController(api, output, dependencies = {}) {
       return result;
     } catch (error) {
       output.appendLine(`ERROR: ${error.message}`);
-      output.show(true);
       api.window.showErrorMessage(`SF Source Tools: ${error.message}`);
       return { error: error.message };
     } finally {

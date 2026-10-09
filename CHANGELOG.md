@@ -4,6 +4,14 @@ All notable changes are documented here. Versions follow Semantic Versioning.
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-10-09
+
+### Fixed
+
+- Show Salesforce CLI's native live progress, colors, stages, and result tables in the integrated terminal instead of displaying buffered JSON after completion.
+- Run each CLI command once with literal argument arrays and preserve owning-project/default-org isolation, confirmation, conflict handling, and timeout following.
+- Place Deploy before Retrieve in Explorer and editor context menus.
+
 ## [0.1.0] - 2026-10-09
 
 ### Added

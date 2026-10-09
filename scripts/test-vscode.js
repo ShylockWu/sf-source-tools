@@ -14,7 +14,7 @@ async function main() {
     const cli = write(
       scratch,
       "fake-sf.cjs",
-      'const fs=require("node:fs");fs.appendFileSync(process.env.SF_SOURCE_TEST_LOG,JSON.stringify({cwd:process.cwd(),org:process.env.SF_TARGET_ORG,args:process.argv.slice(2)})+"\\n");console.log(JSON.stringify({status:0,result:{success:true,status:"Succeeded",done:true}}));',
+      'const fs=require("node:fs");fs.appendFileSync(process.env.SF_SOURCE_TEST_LOG,JSON.stringify({cwd:process.cwd(),org:process.env.SF_TARGET_ORG,args:process.argv.slice(2),tty:process.stdout.isTTY===true})+"\\n");process.stdout.write("✔ Preparing\\n");setTimeout(()=>{process.stdout.write("✔ Deploying Metadata\\n  ▸ Components: 1/1 (100%)\\n✔ Done\\nStatus: Succeeded\\nDeployed Source\\nState | Name | Type | Path\\n");},120);',
     );
     const launcher = write(
       scratch,
@@ -36,6 +36,7 @@ async function main() {
         "sfSourceTools.sfPath": launcher,
         "security.workspace.trust.enabled": false,
         "workbench.startupEditor": "none",
+        "terminal.integrated.shellIntegration.enabled": true,
       }),
     );
     const installed = process.env.SF_SOURCE_TEST_EXTENSION;

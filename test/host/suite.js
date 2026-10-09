@@ -18,6 +18,18 @@ async function run() {
   await vscode.window.showTextDocument(
     await vscode.workspace.openTextDocument(b),
   );
+  const nativeOutput = [];
+  const reading = [];
+  const listener = vscode.window.onDidStartTerminalShellExecution((event) => {
+    if (event.terminal.name.startsWith("SF Source Tools:")) {
+      reading.push(
+        (async () => {
+          for await (const chunk of event.execution.read())
+            nativeOutput.push(chunk);
+        })(),
+      );
+    }
+  });
   const first = await vscode.commands.executeCommand("sfSourceTools.deploy", a);
   assert.equal(first.success, true, JSON.stringify(first));
   const second = await vscode.commands.executeCommand(
@@ -50,8 +62,15 @@ async function run() {
   assert.deepEqual(log[0].args.slice(0, 3), ["project", "deploy", "start"]);
   assert.equal(log[0].args.includes(a.fsPath), true);
   assert.equal(log[0].args.includes("--ignore-conflicts"), false);
+  assert.equal(log[0].args.includes("--json"), false);
+  assert.equal(log[0].tty, true);
+  assert.equal(log[1].tty, true);
+  await Promise.all(reading);
+  listener.dispose();
+  assert.match(nativeOutput.join(""), /Preparing/);
+  assert.match(nativeOutput.join(""), /Deployed Source/);
   console.log(
-    "Extension host passed: activation, four commands, selected-resource priority, two project/org contexts, cross-project rejection, missing-org rejection, literal CLI argv.",
+    "Extension host passed: activation, four commands, selected-resource priority, two project/org contexts, cross-project rejection, missing-org rejection, literal CLI argv, real TTY progress and result table.",
   );
 }
 
