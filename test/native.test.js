@@ -315,4 +315,5 @@ test("Windows terminal uses supported PowerShell 7 shell integration", async (t)
     org: "org",
   });
   assert.equal(h.terminals[0].options.shellPath, "pwsh.exe");
+  assert.deepEqual(h.terminals[0].options.shellArgs, []);
 });

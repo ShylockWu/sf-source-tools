@@ -154,7 +154,7 @@ function createTerminalCli(api, operation, options = {}) {
             ELECTRON_RUN_AS_NODE: "1",
           },
           shellPath: platform === "win32" ? "pwsh.exe" : "/bin/bash",
-          shellArgs: platform === "win32" ? ["-NoLogo", "-NoProfile"] : [],
+          shellArgs: [],
         });
       }
       terminal.show(true);
