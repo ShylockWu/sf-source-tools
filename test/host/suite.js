@@ -31,6 +31,11 @@ async function run() {
     }
   });
   const first = await vscode.commands.executeCommand("sfSourceTools.deploy", a);
+  if (!first.success) {
+    await Promise.all(reading);
+    listener.dispose();
+    console.error("Native terminal diagnostic output:", nativeOutput.join(""));
+  }
   assert.equal(first.success, true, JSON.stringify(first));
   const second = await vscode.commands.executeCommand(
     "sfSourceTools.deploy",
