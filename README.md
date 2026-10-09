@@ -80,7 +80,7 @@ No code is copied from the proprietary Charket extension. This is a standalone M
 
 ## Releases
 
-See [docs/releasing.md](docs/releasing.md). Each release aligns `package.json`, `CHANGELOG.md`, a `vMAJOR.MINOR.PATCH` tag, and its VSIX. GitHub Actions validates and publishes the GitHub Release. Marketplace publishing uses a protected `marketplace` environment and the `VSCE_PAT` secret; without it the workflow explicitly skips Marketplace publishing.
+See [docs/releasing.md](docs/releasing.md). Each release aligns `package.json`, `CHANGELOG.md`, a `vMAJOR.MINOR.PATCH` tag, and its VSIX. GitHub Actions validates and publishes the GitHub Release. Marketplace publishing uses a `marketplace` environment and the `VSCE_PAT` secret; without it the workflow explicitly skips Marketplace publishing.
 
 ## License
 
