@@ -43,9 +43,9 @@ async function run() {
     .split("\n")
     .map((line) => JSON.parse(line));
   assert.equal(log.length, 2);
-  assert.equal(log[0].cwd, path.join(root, "a"));
+  assert.equal(path.relative(path.join(root, "a"), log[0].cwd), "");
   assert.equal(log[0].org, "host-org-a");
-  assert.equal(log[1].cwd, path.join(root, "b"));
+  assert.equal(path.relative(path.join(root, "b"), log[1].cwd), "");
   assert.equal(log[1].org, "host-org-b");
   assert.deepEqual(log[0].args.slice(0, 3), ["project", "deploy", "start"]);
   assert.equal(log[0].args.includes(a.fsPath), true);
