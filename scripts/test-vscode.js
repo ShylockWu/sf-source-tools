@@ -14,7 +14,7 @@ async function main() {
     const cli = write(
       scratch,
       "fake-sf.cjs",
-      'const fs=require("node:fs");fs.appendFileSync(process.env.SF_SOURCE_TEST_LOG,JSON.stringify({cwd:process.cwd(),org:process.env.SF_TARGET_ORG,args:process.argv.slice(2),tty:process.stdout.isTTY===true})+"\\n");process.stdout.write("✔ Preparing\\n");setTimeout(()=>{process.stdout.write("✔ Deploying Metadata\\n  ▸ Components: 1/1 (100%)\\n✔ Done\\nStatus: Succeeded\\nDeployed Source\\nState | Name | Type | Path\\n");},120);',
+      'const fs=require("node:fs");fs.appendFileSync(process.env.SF_SOURCE_TEST_LOG,JSON.stringify({cwd:process.cwd(),org:process.env.SF_TARGET_ORG,args:process.argv.slice(2),tty:process.stdout.isTTY===true})+"\\n");process.stdout.write("✔ Preparing\\n");const timer=setInterval(()=>{if(fs.existsSync(process.env.SF_SOURCE_TEST_GATE)){clearInterval(timer);process.stdout.write("✔ Deploying Metadata\\n  ▸ Components: 1/1 (100%)\\n✔ Done\\nStatus: Succeeded\\nDeployed Source\\nState | Name | Type | Path\\n");}},20);setTimeout(()=>{clearInterval(timer);process.exit(1);},15000).unref();',
     );
     const launcher = write(
       scratch,
@@ -36,7 +36,7 @@ async function main() {
         "sfSourceTools.sfPath": launcher,
         "security.workspace.trust.enabled": false,
         "workbench.startupEditor": "none",
-        "terminal.integrated.shellIntegration.enabled": true,
+        "terminal.integrated.shellIntegration.enabled": false,
       }),
     );
     const installed = process.env.SF_SOURCE_TEST_EXTENSION;
@@ -66,6 +66,7 @@ async function main() {
       extensionTestsEnv: {
         SF_SOURCE_TEST_ROOT: scratch,
         SF_SOURCE_TEST_LOG: path.join(scratch, "cli-log.jsonl"),
+        SF_SOURCE_TEST_GATE: path.join(scratch, "continue"),
         SF_TARGET_ORG: "wrong-inherited-org",
       },
     });

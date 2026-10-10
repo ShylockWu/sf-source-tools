@@ -4,6 +4,14 @@ All notable changes are documented here. Versions follow Semantic Versioning.
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-10-10
+
+### Fixed
+
+- Stream Salesforce CLI progress, result tables, and errors into **Output → SF Source Tools**, opening the Output panel automatically without creating a terminal.
+- Use CLI non-interactive text progress and remove shell integration, Bash, PowerShell 7, and terminal launcher requirements.
+- Preserve project-local org isolation, literal arguments, confirmed completion, conflict consent, and timeout following while handling split output and UTF-8 correctly.
+
 ## [0.1.1] - 2026-10-09
 
 ### Fixed

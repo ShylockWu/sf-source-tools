@@ -8,7 +8,6 @@ A small VS Code extension for Salesforce source operations that works in **singl
 - Current Salesforce CLI (`sf`) installed on the extension host and available on PATH.
 - An authenticated org and a **project-local** default org for every Salesforce project you use.
 - A trusted workspace and source-format metadata inside a `packageDirectories` path in `sfdx-project.json`.
-- Enabled VS Code terminal shell integration. The extension uses Bash on macOS/Linux and PowerShell 7 (`pwsh.exe`, installed on PATH) on Windows for its dedicated CLI terminal.
 
 From each Salesforce project's directory, configure its default org:
 
@@ -39,7 +38,7 @@ Salesforce's official source-deploy-retrieve library resolves metadata identitie
 
 Modified editors in the owning project must be saved before an operation starts. Retrieve can replace multiple files in a component, including changes already saved to disk. Keep your source in Git. On conflicts, overwrite is offered only after Salesforce reports a conflict and only proceeds after explicit confirmation.
 
-Open **Terminal → SF Source Tools** to watch the actual Salesforce CLI stage progress, component counts, colors, elapsed time, and final result tables while the command runs. The visible command does not use `--json`; each write operation executes once. **Output → SF Source Tools** retains project, default org, arguments, and error diagnostics. Each project can have only one active operation from this extension; other projects can operate independently. Closing the terminal or interrupting a local process does not safely cancel a remote Salesforce job; check its remote status before retrying. If shell integration is unavailable, the extension stops before starting CLI instead of losing completion tracking.
+The extension automatically opens **Output → SF Source Tools** and streams Salesforce CLI's plain-text stages, component counts, elapsed time, final result tables, and errors as they arrive. It does not open a terminal or require shell integration, Bash, or PowerShell 7. The CLI uses its non-interactive text progress mode, not terminal colors or animated redraws; the command does not use `--json`, and each write operation executes once. The same output channel retains the project, default org, and arguments. Each project can have only one active operation from this extension; other projects can operate independently. Closing the Output panel does not stop the process. Interrupting a local process does not safely cancel a remote Salesforce job; check its remote status before retrying.
 
 Deploy and org-only deletion follow unfinished jobs by their returned ID, including repeated CLI wait timeouts. Retrieve timeouts are reported as incomplete because Salesforce CLI has no retrieve resume command; increase the wait setting and verify remote status and local source before another retrieve. A timeout during **Delete from Project and Org** is also reported as incomplete; local files remain, and the remote deletion may still finish. Inspect its job with `sf project deploy report --job-id JOB_ID` from the owning project before doing anything else. Do not blindly retry or assume local cleanup occurred.
 
@@ -59,7 +58,7 @@ Download `sf-source-tools-VERSION.vsix` from [Releases](https://github.com/Shylo
 To install in a named profile:
 
 ```sh
-code --install-extension ./sf-source-tools-0.1.1.vsix --profile LWC
+code --install-extension ./sf-source-tools-0.1.2.vsix --profile LWC
 ```
 
 Publisher identity is `shylockwu.sf-source-tools`. Marketplace distribution requires publisher authorization; a GitHub Release is not proof of Marketplace availability.
@@ -75,7 +74,7 @@ npm run package
 
 Node.js 24 is used for development and CI. On headless Linux, run `xvfb-run -a npm run test:vscode`. Set `VSCODE_EXECUTABLE_PATH` to an installed desktop executable to avoid downloading VS Code. `SF_SOURCE_TEST_EXTENSION` can point at an extracted VSIX's `extension` directory to test the exact packaged artifact.
 
-Unit tests use temporary Salesforce fixtures and simulated CLI responses. Extension-host smoke tests register all commands and execute deploy commands against a **fake CLI** in a real integrated terminal, checking TTY output, native progress/result tables, resource priority, owning project, default org, and rejected selections. These tests do **not** authenticate to or modify a real Salesforce org. Real-org integration testing must use a separately authorized disposable environment.
+Unit tests use temporary Salesforce fixtures and simulated CLI responses. Extension-host smoke tests register all commands and execute deploy commands against a **fake CLI**, checking live writes to a real Output channel before command completion, progress/result tables, no terminal creation, disabled shell integration, resource priority, owning project, default org, and rejected selections. These tests do **not** authenticate to or modify a real Salesforce org. Real-org integration testing must use a separately authorized disposable environment.
 
 No code is copied from the proprietary Charket extension. This is a standalone MIT-licensed project with no Salesforce package dependencies or Charket configuration.
 

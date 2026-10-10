@@ -2,7 +2,7 @@
   "name": "sf-source-tools",
   "displayName": "SF Source Tools",
   "description": "Retrieve, deploy, and delete Salesforce source from the correct project in single-root and multi-root workspaces.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "shylockwu",
   "author": "Shylock Wu",
   "license": "MIT",

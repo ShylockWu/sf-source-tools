@@ -1,6 +1,6 @@
 const path = require("node:path");
 const { resolveSelection, isWithin } = require("./project");
-const { createTerminalCli } = require("./native-cli");
+const { runOutputCli } = require("./output-cli");
 const { executeOperation } = require("./operations");
 
 function selectedUris(uri, selections, activeUri) {
@@ -76,8 +76,9 @@ function createController(api, output, dependencies = {}) {
       const config = api.workspace.getConfiguration("sfSourceTools", uris[0]);
       const executable = config.get("sfPath", "sf");
       const wait = config.get("waitMinutes", 33);
-      const cli = dependencies.cli || createTerminalCli(api, operation);
+      const cli = dependencies.cli || runOutputCli;
       const log = (line) => output.appendLine(line);
+      output.show(true);
       const result = await api.window.withProgress(
         {
           location: api.ProgressLocation.Notification,
@@ -103,6 +104,7 @@ function createController(api, output, dependencies = {}) {
         );
       return result;
     } catch (error) {
+      output.show(true);
       output.appendLine(`ERROR: ${error.message}`);
       api.window.showErrorMessage(`SF Source Tools: ${error.message}`);
       return { error: error.message };
